@@ -34,6 +34,12 @@ Documentation
 Documentation is hosted at
 [https://dask-awkward.readthedocs.io/](https://dask-awkward.readthedocs.io/).
 
+Contributing
+------------
+
+Contributions are welcome!
+Please see the [Contributing Guide](https://dask-awkward.readthedocs.io/en/stable/dev/contributing.html).
+
 Acknowledgements
 ----------------
 

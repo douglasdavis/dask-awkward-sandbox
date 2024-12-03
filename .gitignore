@@ -130,3 +130,5 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+pyrightconfig.json
