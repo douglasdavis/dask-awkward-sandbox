@@ -2171,13 +2171,15 @@ def map_partitions(
             message += f"- {type(arg)}"
         raise TypeError(message)
 
-    
     if len(kwargs) == 0:
         non_traversed_deps, _ = unpack_collections(*args, traverse=False)
-        if all(traversed_dep == non_traversed_dep for traversed_dep, non_traversed_dep in zip(flat_deps, non_traversed_deps)):
+        if all(
+            traversed_dep == non_traversed_dep
+            for traversed_dep, non_traversed_dep in zip(flat_deps, non_traversed_deps)
+        ):
             return _map_partitions(
                 base_fn,
-                *args, 
+                *args,
                 label=label,
                 token=token,
                 meta=meta,
