@@ -1610,7 +1610,7 @@ class Array(DaskMethodsMixin, NDArrayOperatorsMixin):
 
                     @wraps(cls_method)
                     def wrapper(*args, **kwargs):
-                        return self._map_partitions(
+                        return self.map_partitions(
                             _BehaviorMethodFn(attr, **kwargs),
                             *args,
                             label=hyphenize(attr),
@@ -1618,7 +1618,7 @@ class Array(DaskMethodsMixin, NDArrayOperatorsMixin):
 
                     return wrapper
                 else:
-                    return self._map_partitions(
+                    return self.map_partitions(
                         _BehaviorPropertyFn(attr),
                         label=hyphenize(attr),
                     )
@@ -2170,6 +2170,19 @@ def map_partitions(
         for arg in args:
             message += f"- {type(arg)}"
         raise TypeError(message)
+
+    
+    if len(kwargs) == 0:
+        non_traversed_deps, _ = unpack_collections(*args, traverse=False)
+        if all(traversed_dep == non_traversed_dep for traversed_dep, non_traversed_dep in zip(flat_deps, non_traversed_deps)):
+            return _map_partitions(
+                base_fn,
+                *args, 
+                label=label,
+                token=token,
+                meta=meta,
+                output_divisions=output_divisions,
+            )
 
     arg_flat_deps_expanded = []
     arg_repackers = []
