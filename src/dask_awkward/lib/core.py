@@ -1302,7 +1302,7 @@ class Array(DaskMethodsMixin, NDArrayOperatorsMixin):
             else:
                 m = to_meta([where])[0]
                 meta = self._meta[m]
-        return _map_partitions(
+        return (
             operator.getitem,
             self,
             where,
@@ -1322,7 +1322,7 @@ class Array(DaskMethodsMixin, NDArrayOperatorsMixin):
             )
 
         new_meta = self._meta[where._meta]
-        return self._map_partitions(
+        return self.(
             operator.getitem,
             where,
             meta=new_meta,
@@ -1342,7 +1342,7 @@ class Array(DaskMethodsMixin, NDArrayOperatorsMixin):
                 new_meta = self._meta[metad]
             elif isinstance(where, (str, list)):
                 new_meta = self._meta[where]
-        return self._getitem_trivial_map_partitions(where, meta=new_meta, label=label)
+        return self._getitem_trivial(where, meta=new_meta, label=label)
 
     def _getitem_outer_int(self, where: int | tuple[Any, ...]) -> Any:
         if where == 0 or (isinstance(where, tuple) and where[0] == 0):
@@ -2174,7 +2174,7 @@ def map_partitions(
     if len(kwargs) == 0:
         non_traversed_deps, _ = unpack_collections(*args, traverse=False)
         if all(
-            traversed_dep == non_traversed_dep
+            id(traversed_dep) == id(non_traversed_dep)
             for traversed_dep, non_traversed_dep in zip(flat_deps, non_traversed_deps)
         ):
             return _map_partitions(
