@@ -2173,7 +2173,7 @@ def map_partitions(
 
     if len(kwargs) == 0:
         non_traversed_deps, _ = unpack_collections(*args, traverse=False)
-        if all(
+        if len(flat_deps) == len(non_traversed_deps) and all(
             id(traversed_dep) == id(non_traversed_dep)
             for traversed_dep, non_traversed_dep in zip(flat_deps, non_traversed_deps)
         ):
