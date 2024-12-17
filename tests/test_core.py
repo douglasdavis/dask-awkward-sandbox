@@ -806,6 +806,11 @@ def test_map_partitions_args_and_kwargs_have_collection():
     zc = my_power(xc, kwarg_y=yc)
     zl = dak.map_partitions(my_power, xl, kwarg_y=yl)
 
+    # kwargs that contain collections should be wrapped
+    assert isinstance(
+        zl.dask.layers[zl.name].task.func, dak.lib.core.ArgsKwargsPackedFunction
+    )
+
     assert_eq(zc, zl)
 
     zd = structured_function(inputs={"x": xc, "y": xc, "z": yc})
@@ -829,6 +834,9 @@ def test_map_partitions_args_and_kwargs_have_collection():
 
     zg = my_power(xc, kwarg_y=2.0)
     zp = dak.map_partitions(my_power, xl, kwarg_y=2.0)
+
+    # this invocation of my_power shouldn't be wrapped, no collections
+    assert zp.dask.layers[zp.name].task.func is my_power
 
     assert_eq(zg, zp)
 
@@ -860,6 +868,7 @@ def test_map_partitions_args_and_kwargs_have_collection():
         ccc=cc,
         ddd=dd,
     )
+
     assert_eq(res1, res2)
 
 
