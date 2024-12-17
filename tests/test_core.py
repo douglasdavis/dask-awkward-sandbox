@@ -781,6 +781,10 @@ def test_make_unknown_length():
         len(ul_tt1)
 
 
+def my_power_flat(arg_x, arg_y):
+    return arg_x**arg_y
+
+
 def my_power(arg_x, *, kwarg_y=None):
     return arg_x**kwarg_y
 
@@ -835,12 +839,14 @@ def test_map_partitions_args_and_kwargs_have_collection():
 
     zg = my_power(xc, kwarg_y=2.0)
     zp = dak.map_partitions(my_power, xl, kwarg_y=2.0)
+    zp_f = dak.map_partitions(my_power_flat, xl, 2.0)
 
     # this invocation of my_power shouldn't be wrapped, no collections
-    if hasattr(zp.dask.layers[zp.name], "task"):
-        assert zp.dask.layers[zp.name].task.func is my_power
+    if hasattr(zp_f.dask.layers[zp_f.name], "task"):
+        assert zp_f.dask.layers[zp_f.name].task.func is my_power_flat
 
     assert_eq(zg, zp)
+    assert_eq(zg, zp_f)
 
     a = ak.Array(
         [
