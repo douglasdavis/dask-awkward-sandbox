@@ -2171,7 +2171,6 @@ def map_partitions(
             message += f"- {type(arg)}"
         raise TypeError(message)
 
-    # only allow this shortcut for new dask!
     if len(kwargs) == 0:  # non-critical FIXME: use kwarg_flat_deps
         non_traversed_deps, _ = unpack_collections(*args, traverse=False)
         if len(flat_deps) == len(non_traversed_deps) and all(
