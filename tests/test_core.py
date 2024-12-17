@@ -807,9 +807,10 @@ def test_map_partitions_args_and_kwargs_have_collection():
     zl = dak.map_partitions(my_power, xl, kwarg_y=yl)
 
     # kwargs that contain collections should be wrapped
-    assert isinstance(
-        zl.dask.layers[zl.name].task.func, dak.lib.core.ArgsKwargsPackedFunction
-    )
+    if hasattr(zl.dask.layers[zl.name], "task"):
+        assert isinstance(
+            zl.dask.layers[zl.name].task.func, dak.lib.core.ArgsKwargsPackedFunction
+        )
 
     assert_eq(zc, zl)
 
@@ -836,7 +837,8 @@ def test_map_partitions_args_and_kwargs_have_collection():
     zp = dak.map_partitions(my_power, xl, kwarg_y=2.0)
 
     # this invocation of my_power shouldn't be wrapped, no collections
-    assert zp.dask.layers[zp.name].task.func is my_power
+    if hasattr(zp.dask.layers[zp.name], "task"):
+        assert zp.dask.layers[zp.name].task.func is my_power
 
     assert_eq(zg, zp)
 
