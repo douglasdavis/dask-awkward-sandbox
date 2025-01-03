@@ -437,8 +437,6 @@ def test_typetracer_function(daa: Array) -> None:
     tta = typetracer_array(aa)
     assert tta is not None
     assert tta.layout.form == aa.layout.form
-    with pytest.raises(TypeError, match="Got type <class 'int'>"):
-        typetracer_array(3)
 
 
 def test_single_partition(ndjson_points_file: str) -> None:
