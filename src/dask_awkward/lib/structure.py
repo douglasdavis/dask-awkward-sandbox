@@ -76,6 +76,7 @@ __all__ = (
     "without_parameters",
     "zeros_like",
     "zip",
+    "zip_no_broadcast",
 )
 
 
@@ -1340,6 +1341,88 @@ def zip(
     else:
         raise DaskAwkwardNotImplemented(
             "only mappings or sequences are supported by dak.zip (e.g. dict, list, or tuple)"
+        )
+
+
+class _ZipNoBroadcastDictInputFn:
+    def __init__(self, keys: Sequence[str], **kwargs: Any) -> None:
+        self.keys = keys
+        self.kwargs = kwargs
+
+    def __call__(self, *parts: ak.Array) -> ak.Array:
+        return ak.zip_no_broadcast(
+            {k: p for k, p in builtins.zip(self.keys, list(parts))},
+            **self.kwargs,
+        )
+
+
+class _ZipNoBroadcastListInputFn:
+    def __init__(self, **kwargs: Any) -> None:
+        self.kwargs = kwargs
+
+    def __call__(self, *parts: Any) -> ak.Array:
+        return ak.zip_no_broadcast(list(parts), **self.kwargs)
+
+
+@borrow_docstring(ak.zip_no_broadcast)
+def zip_no_broadcast(
+    arrays: Sequence[Array] | Mapping[str, Array],
+    parameters: Mapping[str, Any] | None = None,
+    with_name: str | None = None,
+    highlevel: bool = True,
+    behavior: Mapping | None = None,
+    attrs: Mapping[str, Any] | None = None,
+) -> Array:
+    if not highlevel:
+        raise ValueError("Only highlevel=True is supported")
+
+    if isinstance(arrays, Mapping):
+        keys, colls, metadict = [], [], {}
+        for k, coll in arrays.items():
+            keys.append(k)
+            colls.append(coll)
+            metadict[k] = coll._meta
+
+        meta = ak.zip_no_broadcast(
+            metadict,
+            parameters=parameters,
+            with_name=with_name,
+            highlevel=highlevel,
+            behavior=behavior,
+            attrs=attrs,
+        )
+
+        return map_partitions(
+            _ZipNoBroadcastDictInputFn(
+                keys,
+                parameters=parameters,
+                with_name=with_name,
+                highlevel=highlevel,
+                behavior=behavior,
+                attrs=attrs,
+            ),
+            *colls,
+            label="zip_no_broadcast",
+            meta=meta,
+        )
+
+    elif isinstance(arrays, Sequence):
+        fn = _ZipNoBroadcastListInputFn(
+            parameters=parameters,
+            with_name=with_name,
+            highlevel=highlevel,
+            behavior=behavior,
+            attrs=attrs,
+        )
+        return map_partitions(
+            fn,
+            *arrays,
+            label="zip_no_broadcast",
+        )
+
+    else:
+        raise DaskAwkwardNotImplemented(
+            "only mappings or sequences are supported by dak.zip_no_broadcast (e.g. dict, list, or tuple)"
         )
 
 

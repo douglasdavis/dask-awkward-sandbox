@@ -104,5 +104,6 @@ from dask_awkward.lib.structure import (
     without_parameters,
     zeros_like,
     zip,
+    zip_no_broadcast,
 )
 from dask_awkward.version import __version__

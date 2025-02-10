@@ -94,6 +94,48 @@ def test_zip_bad_input(daa: dak.Array) -> None:
         dak.zip(gd)
 
 
+def test_zip_no_broadcast_dict_input(caa: ak.Array, daa: dak.Array) -> None:
+    da1 = daa["points"]["x"]
+    da2 = daa["points"]["x"]
+    ca1 = caa["points"]["x"]
+    ca2 = caa["points"]["x"]
+
+    da_z = dak.zip_no_broadcast({"a": da1, "b": da2})
+    ca_z = ak.zip_no_broadcast({"a": ca1, "b": ca2})
+    assert_eq(da_z, ca_z)
+
+
+def test_zip_no_broadcast_list_input(caa: ak.Array, daa: dak.Array) -> None:
+    da1 = daa.points.x
+    ca1 = caa.points.x
+    dz1 = dak.zip_no_broadcast([da1, da1])
+    cz1 = ak.zip_no_broadcast([ca1, ca1])
+    assert_eq(dz1, cz1)
+    dz2 = dak.zip_no_broadcast([da1, da1, da1])
+    cz2 = ak.zip_no_broadcast([ca1, ca1, ca1])
+    assert_eq(dz2, cz2)
+
+
+def test_zip_no_broadcast_tuple_input(caa: ak.Array, daa: dak.Array) -> None:
+    da1 = daa.points.x
+    ca1 = caa.points.x
+    dz1 = dak.zip_no_broadcast((da1, da1))
+    cz1 = ak.zip_no_broadcast((ca1, ca1))
+    assert_eq(dz1, cz1)
+    dz2 = dak.zip_no_broadcast((da1, da1, da1))
+    cz2 = ak.zip_no_broadcast((ca1, ca1, ca1))
+    assert_eq(dz2, cz2)
+
+
+def test_zip_no_broadcast_bad_input(daa: dak.Array) -> None:
+    da1 = daa.points.x
+    gd = (x for x in (da1, da1))
+    with pytest.raises(
+        DaskAwkwardNotImplemented, match="only mappings or sequences are supported"
+    ):
+        dak.zip_no_broadcast(gd)
+
+
 def test_cartesian(caa: ak.Array, daa: dak.Array) -> None:
     da1 = daa["points", "x"]
     da2 = daa["points", "y"]
